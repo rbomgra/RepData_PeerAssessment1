@@ -1,16 +1,13 @@
 # Reproducible Research: Peer Assessment 1
 ========================================================
 
-```{r, echo=FALSE}
-## Setting the working directory
-setwd("D:\\#FORMACION\\Coursera\\05 - Reproducible Research\\PA1")
-date <- date()
-```
+
 
 ## Loading and preprocessing the data
 Step 1: Read the data: 
 
-```{r}
+
+```r
 setInternet2(TRUE)
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(fileUrl, destfile="repdata_Fdata_Factivity.zip", method="auto")
@@ -19,8 +16,13 @@ unlink("activity.csv")
 ```
 
 Date file download: 
-```{r} 
+
+```r
 date
+```
+
+```
+## [1] "Thu Jun 12 08:15:40 2014"
 ```
 
 ## What is mean total number of steps taken per day?
