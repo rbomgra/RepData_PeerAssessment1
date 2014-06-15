@@ -8,9 +8,9 @@ Step 1: Read the data:
 
 
 ```r
-#setInternet2(TRUE)
-#fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
-#download.file(fileUrl, destfile="repdata_Fdata_Factivity.zip", method="auto")
+setInternet2(TRUE)
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(fileUrl, destfile="repdata_Fdata_Factivity.zip", method="auto")
 Factivity <- read.csv(unz("repdata_Fdata_Factivity.zip","activity.csv"))
 unlink("activity.csv")
 ```
@@ -22,7 +22,7 @@ date
 ```
 
 ```
-## [1] "Sun Jun 15 23:43:59 2014"
+## [1] "Mon Jun 16 00:27:04 2014"
 ```
 
 ## What is mean total number of steps taken per day?
@@ -143,39 +143,37 @@ These values nearly does not differ from the estimates from the first part of th
 
 total$wd <- ifelse(weekdays(as.Date(total$date)) %in% c('sábado','domingo'),1,0)
 
-#Strategy for filling in all of the missing values in the dataset: 
-#Use the mean for that 5-minute interval, etc.
+total2 <- split (total,total$wd)
+stweekend <- total2[[1]]
+stweekend <- stweekend[,c(1,3,5)]
+stweekday <- total2[[2]]
+stweekday <- stweekday[,c(1,3,5)]
 
-avgstepinterv <- aggregate (Factivity$steps, by=list(as.factor(Factivity$interval)),FUN=mean, na.rm=TRUE)
-names(avgstepinterv) <- c("interval","mean.steps")
+meanstepsweekend <- aggregate (stweekend$steps1, by=list(as.factor(stweekend$interval)),FUN=mean, na.rm=TRUE)
+names(meanstepsweekend) <- c("interval","mean.steps")
 
+meanstepsweekday <- aggregate (stweekday$steps1, by=list(as.factor(stweekday$interval)),FUN=mean, na.rm=TRUE)
+names(meanstepsweekday) <- c("interval","mean.steps")
 
-#New dataset that is equal to the original dataset but with the missing data filled in.
-total <- merge(Factivity,avgstepinterv,by="interval")
-total <- total[order(total$date,total$interval),]
-total$steps1 <- ifelse(is.na(total$steps),total$mean.steps,total$steps)
+library(ggplot2)
+p1 <- ggplot(meanstepsweekend, aes(x=as.factor(interval), y=mean.steps))+
+geom_line(aes(group=1), colour="#000099") +  # Blue lines
+geom_point(size=1, colour="#CC0000") +        # Red dots
+labs(x="Hour Interval")+labs(y="Average number of Steps") +
+        labs(title="Weekend Activity Pattern")
 
-#Histogram of the total number of steps taken each day (replacing NA values)
-aggSum1 <- aggregate (total$steps1, by=list(as.factor(Factivity$date)),FUN=sum,rm.na=TRUE)
-names(aggSum1) <- c("date","steps")
-hist(aggSum1$steps,main="Steps Histogram",col="blue",xlab="Steps")
+p2 <- ggplot(meanstepsweekday, aes(x=as.factor(interval), y=mean.steps))+
+geom_line(aes(group=1), colour="#000099") +  # Blue lines
+geom_point(size=1, colour="#CC0000") +        # Red dots
+labs(x="Hour Interval")+labs(y="Average number of Steps") +
+        labs(title="WeekDay Activity Pattern")
+
+library(grid)
+library(gridExtra)
+grid.arrange(p1, p2)
 ```
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
-```r
-# Mean and Median total number of steps taken per day
-mean(aggSum1$steps, na.rm=TRUE)
-```
-
-```
-## [1] 10767
-```
-
-```r
-median(aggSum1$steps, na.rm=TRUE)
-```
-
-```
-## [1] 10767
-```
+There are difference between weekday and weekend activity pattern.
+The most important difference is that during the weekend there is more activity than the weekdays.
