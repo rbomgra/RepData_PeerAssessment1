@@ -22,7 +22,7 @@ date
 ```
 
 ```
-## [1] "Sun Jun 15 23:19:49 2014"
+## [1] "Sun Jun 15 23:43:59 2014"
 ```
 
 ## What is mean total number of steps taken per day?
@@ -106,7 +106,7 @@ total <- merge(Factivity,avgstepinterv,by="interval")
 total <- total[order(total$date,total$interval),]
 total$steps1 <- ifelse(is.na(total$steps),total$mean.steps,total$steps)
 
-#Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
+#Histogram of the total number of steps taken each day (replacing NA values)
 aggSum1 <- aggregate (total$steps1, by=list(as.factor(Factivity$date)),FUN=sum,rm.na=TRUE)
 names(aggSum1) <- c("date","steps")
 hist(aggSum1$steps,main="Steps Histogram",col="blue",xlab="Steps")
@@ -136,23 +136,46 @@ These values nearly does not differ from the estimates from the first part of th
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-## What is the average daily activity pattern?
 
 
 ```r
-avgsteps.interval <- aggregate (Factivity$steps, by=list(as.factor(Factivity$interval)),FUN=mean, na.rm=TRUE)
-names(avgsteps.interval) <- c("interval","mean.steps")
-hinterv <- as.factor(avgsteps.interval$interval)
-plot(hinterv, avgsteps.interval$mean.steps, type="s", xlab="Hour Interval", ylab="Average number of Steps",main="Average Daily Activity Pattern")
+# New factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day
+
+total$wd <- ifelse(weekdays(as.Date(total$date)) %in% c('sábado','domingo'),1,0)
+
+#Strategy for filling in all of the missing values in the dataset: 
+#Use the mean for that 5-minute interval, etc.
+
+avgstepinterv <- aggregate (Factivity$steps, by=list(as.factor(Factivity$interval)),FUN=mean, na.rm=TRUE)
+names(avgstepinterv) <- c("interval","mean.steps")
+
+
+#New dataset that is equal to the original dataset but with the missing data filled in.
+total <- merge(Factivity,avgstepinterv,by="interval")
+total <- total[order(total$date,total$interval),]
+total$steps1 <- ifelse(is.na(total$steps),total$mean.steps,total$steps)
+
+#Histogram of the total number of steps taken each day (replacing NA values)
+aggSum1 <- aggregate (total$steps1, by=list(as.factor(Factivity$date)),FUN=sum,rm.na=TRUE)
+names(aggSum1) <- c("date","steps")
+hist(aggSum1$steps,main="Steps Histogram",col="blue",xlab="Steps")
 ```
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
 ```r
- avgsteps.interval[avgsteps.interval$mean.steps==max(avgsteps.interval$mean.steps),]
+# Mean and Median total number of steps taken per day
+mean(aggSum1$steps, na.rm=TRUE)
 ```
 
 ```
-##     interval mean.steps
-## 104      835      206.2
+## [1] 10767
+```
+
+```r
+median(aggSum1$steps, na.rm=TRUE)
+```
+
+```
+## [1] 10767
 ```
