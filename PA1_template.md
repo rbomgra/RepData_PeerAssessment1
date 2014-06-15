@@ -22,7 +22,7 @@ date
 ```
 
 ```
-## [1] "Mon Jun 16 00:27:04 2014"
+## [1] "Mon Jun 16 00:31:16 2014"
 ```
 
 ## What is mean total number of steps taken per day?
@@ -141,7 +141,7 @@ These values nearly does not differ from the estimates from the first part of th
 ```r
 # New factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day
 
-total$wd <- ifelse(weekdays(as.Date(total$date)) %in% c('sábado','domingo'),1,0)
+total$wd <- ifelse(!weekdays(as.Date(total$date)) %in% c('sábado','domingo'),1,0)
 
 total2 <- split (total,total$wd)
 stweekend <- total2[[1]]
